@@ -18,6 +18,7 @@ PlayerImage = pygame.image.load("spacecraft.png")
 PlayerX = 370
 PlayerY = 320
 Xchange = 0
+Ychange = 0
 
 def Player(x, y):
 
@@ -40,7 +41,18 @@ while windowRunning:
                 Xchange = -.1
             if event.key == pygame.K_RIGHT:
                 Xchange = .1
+            if event.key == pygame.K_UP:
+                Ychange = -.1
+            if event.key == pygame.K_DOWN:
+                Ychange = .1
+
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+                Xchange = 0
+            if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
+                Ychange = 0
 
     PlayerX += Xchange
+    PlayerY += Ychange
     Player(PlayerX, PlayerY)
     pygame.display.update()
