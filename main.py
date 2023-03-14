@@ -26,10 +26,14 @@ Ychange = 0
 # Enemy 1
 
 Enemy_1_Image = pygame.image.load("EnemyAlien.png")
-Enemy_1_X = 370
-Enemy_1_Y = 15
-Enemy_1_Xchange = 0
-Enemy_1_Ychange = 0
+Enemy_1_X = random.randint(0, 800)
+Enemy_1_Y = random.randint(15, 100)
+Enemy_1_Xchange = 0.1
+Enemy_1_Ychange = 40
+
+# Background
+
+background = pygame.image.load("SpaceBackground.jpeg")
 
 
 def Player(x, y):
@@ -45,7 +49,7 @@ windowRunning = True
 
 while windowRunning:
 
-    screen.fill((100, 0, 80))
+    screen.blit(background, (0, 0))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -56,16 +60,23 @@ while windowRunning:
                 Xchange = -.1
             if event.key == pygame.K_RIGHT:
                 Xchange = .1
-            if event.key == pygame.K_UP:
-                Ychange = -.1
-            if event.key == pygame.K_DOWN:
-                Ychange = .1
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 Xchange = 0
-            if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
-                Ychange = 0
+
+    # Enemy Movement
+
+    Enemy_1_X += Enemy_1_Xchange
+
+    if Enemy_1_X <= 0:
+        Enemy_1_Xchange = .1
+        Enemy_1_Y += Enemy_1_Ychange
+    elif Enemy_1_X >= 736:
+        Enemy_1_Xchange = -.1
+        Enemy_1_Y += Enemy_1_Ychange
+
+    # Player Movement
 
     PlayerX += Xchange
 
@@ -74,7 +85,6 @@ while windowRunning:
     elif PlayerX >= 736:
         PlayerX = 736
 
-    PlayerY += Ychange
     Enemy(Enemy_1_X, Enemy_1_Y)
     Player(PlayerX, PlayerY)
     pygame.display.update()
