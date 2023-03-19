@@ -5,6 +5,7 @@ from pygame import mixer
 
 # initialize Pygame
 pygame.init()
+clock = pygame.time.Clock()
 
 # Set Screen
 width = 800
@@ -16,6 +17,11 @@ screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Space Invaders")
 icon = pygame.image.load("ufo.png")
 pygame.display.set_icon(icon)
+
+# Score System
+
+score_value = 0
+font = pygame.font.Font("Pixellettersfull-BnJ5.ttf", 40)
 
 # Player
 
@@ -34,26 +40,14 @@ Enemy_1_Xchange = []
 Enemy_1_Ychange = []
 num_of_enemies = 10
 
-for i in range(num_of_enemies):
-    Enemy_1_Image.append(pygame.image.load("EnemyAlien.png"))
-    Enemy_1_X.append(random.randint(0, 735))
-    Enemy_1_Y.append(random.randint(15, 100))
-    Enemy_1_Xchange.append(0.1)
-    Enemy_1_Ychange.append(25)
-
 # Bullet
 
 BulletImage = pygame.image.load("missile.png")
 BulletX = 0
 BulletY = 320
 BulletXchange = 0
-BulletYchange = .5
+BulletYchange = 20
 BulletState = "ready"
-
-# Score System
-
-score_value = 0
-font = pygame.font.Font("Pixellettersfull-BnJ5.ttf", 40)
 
 scoreX = 10
 scoreY = 10
@@ -66,6 +60,15 @@ background = pygame.image.load("SpaceBackground.jpeg")
 
 mixer.music.load("ravagers.mp3")
 mixer.music.play(-1)
+
+# Game Over Font
+
+overFont = pygame.font.Font("Pixellettersfull-BnJ5.ttf", 90)
+
+
+def Game_Over():
+    gameOver = overFont.render("GAME OVER!", True, (255, 0, 0))
+    screen.blit(gameOver, (215, 150))
 
 
 def Show_Score(x, y):
@@ -95,7 +98,22 @@ def isCollision(Enemy_1_X, BulletX, Enemy_1_Y, BulletY):
         return False
 
 
+def addNewEnemy():
+    if num_of_enemies % 10 == 0:
+        Enemy_1_Image.append(pygame.image.load("ufo_2.png"))
+    Enemy_1_Image.append(pygame.image.load("EnemyAlien.png"))
+    Enemy_1_X.append(random.randint(0, 735))
+    Enemy_1_Y.append(random.randint(15, 100))
+    Enemy_1_Xchange.append(5)
+    Enemy_1_Ychange.append(25)
+
+
+for i in range(num_of_enemies):
+    addNewEnemy()
+
 # Game Loop
+
+threshold = 10
 
 windowRunning = True
 
@@ -109,9 +127,9 @@ while windowRunning:
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
-                Xchange = -.1
+                Xchange = -10
             if event.key == pygame.K_RIGHT:
-                Xchange = .1
+                Xchange = 10
 
             # Firing the bullet
             if event.key == pygame.K_SPACE:
@@ -129,13 +147,17 @@ while windowRunning:
 
     for i in range(num_of_enemies):
 
+        if Enemy_1_Y[i] > 250:
+            for j in range(num_of_enemies):
+                Enemy_1_Y[j] = 2000
+            Game_Over()
+            break
         Enemy_1_X[i] += Enemy_1_Xchange[i]
-
         if Enemy_1_X[i] <= 0:
-            Enemy_1_Xchange[i] = .1
+            Enemy_1_Xchange[i] = 5
             Enemy_1_Y[i] += Enemy_1_Ychange[i]
         elif Enemy_1_X[i] >= 736:
-            Enemy_1_Xchange[i] = -.1
+            Enemy_1_Xchange[i] = -5
             Enemy_1_Y[i] += Enemy_1_Ychange[i]
         # Collision Detection
         collision = isCollision(Enemy_1_X[i], BulletX, Enemy_1_Y[i], BulletY)
@@ -167,6 +189,12 @@ while windowRunning:
         Fire_Bullet(BulletX, BulletY)
         BulletY -= BulletYchange
 
+    if score_value >= threshold:
+        addNewEnemy()
+        num_of_enemies += 1
+        threshold += 10
+
     Player(PlayerX, PlayerY)
     Show_Score(scoreX, scoreY)
-    pygame.display.update()
+    clock.tick(60)
+    pygame.display.flip()
