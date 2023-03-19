@@ -1,6 +1,7 @@
 import pygame
 import random
 import math
+from pygame import mixer
 
 # initialize Pygame
 pygame.init()
@@ -49,9 +50,27 @@ BulletXchange = 0
 BulletYchange = .5
 BulletState = "ready"
 
+# Score System
+
+score_value = 0
+font = pygame.font.Font("Pixellettersfull-BnJ5.ttf", 40)
+
+scoreX = 10
+scoreY = 10
+
 # Background
 
 background = pygame.image.load("SpaceBackground.jpeg")
+
+# Background Music
+
+mixer.music.load("ravagers.mp3")
+mixer.music.play(-1)
+
+
+def Show_Score(x, y):
+    score = font.render("Score: " + str(score_value), True, (255, 0, 255))
+    screen.blit(score, (x, y))
 
 
 def Player(x, y):
@@ -97,6 +116,8 @@ while windowRunning:
             # Firing the bullet
             if event.key == pygame.K_SPACE:
                 if BulletState == "ready":
+                    Bullet_Sound = mixer.Sound("TM88 Laser Shot.wav")
+                    Bullet_Sound.play()
                     BulletX = PlayerX
                     Fire_Bullet(BulletX, BulletY)
 
@@ -119,10 +140,13 @@ while windowRunning:
         # Collision Detection
         collision = isCollision(Enemy_1_X[i], BulletX, Enemy_1_Y[i], BulletY)
         if collision:
+            explosionSound = mixer.Sound("Invincible Explosion 1.wav")
+            explosionSound.play()
             BulletY = 320
             BulletState = "ready"
             Enemy_1_X[i] = random.randint(0, 735)
             Enemy_1_Y[i] = random.randint(15, 100)
+            score_value += 1
         Enemy(Enemy_1_X[i], Enemy_1_Y[i], i)
 
     # Player Movement
@@ -144,4 +168,5 @@ while windowRunning:
         BulletY -= BulletYchange
 
     Player(PlayerX, PlayerY)
+    Show_Score(scoreX, scoreY)
     pygame.display.update()
